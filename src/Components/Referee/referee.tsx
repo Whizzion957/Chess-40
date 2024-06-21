@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import axios from 'axios';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { initialBoard } from "../../Constants";
 import { Piece, Position } from "../../models";
 import { Board } from "../../models/Board";
@@ -7,11 +8,21 @@ import { bishopMove, getPossibleBishopMoves, getPossibleKingMoves, getPossibleKn
 import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/chessboard";
 
-export default function Referee() {
+const Referee: FC = () => {
     const [board, setBoard] = useState<Board>(initialBoard.clone());
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
+
+    const runScript = async () => {
+        try {
+            const response = await axios.post<{ output: string, error: string }>('http://localhost:5000/run-script');
+            console.log('Output:', response.data.output);
+            console.log('Error:', response.data.error);
+        } catch (error) {
+            console.error('Error running script:', error);
+        }
+    };
 
     function playMove(playedPiece: Piece, destination: Position): boolean {
         // If the playing piece doesn't have any moves return
@@ -46,7 +57,7 @@ export default function Referee() {
                 validMove, playedPiece,
                 destination);
 
-            if(clonedBoard.winningTeam !== undefined) {
+            if (clonedBoard.winningTeam !== undefined) {
                 checkmateModalRef.current?.classList.remove("hidden");
             }
 
@@ -153,7 +164,7 @@ export default function Referee() {
     function promotionTeamType() {
         return (promotionPawn?.team === TeamType.OUR) ? "W" : "B";
     }
-    
+
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         setBoard(initialBoard.clone());
@@ -162,6 +173,7 @@ export default function Referee() {
     return (
         <>
             <p style={{ color: "white", fontSize: "24px", textAlign: "center" }}>Total turns: {board.totalTurns}</p>
+            <button onClick={runScript}>Run Python Script</button>
             <div className="modal hidden" ref={modalRef}>
                 <div className="modal-body">
                     <img onClick={() => promotePawn(PieceType.ROOK)} src={`/Assets/Images/${promotionTeamType()}_Rook.png`} />
@@ -183,3 +195,5 @@ export default function Referee() {
         </>
     )
 }
+
+export default Referee;
