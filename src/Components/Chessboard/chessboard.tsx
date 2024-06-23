@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import "./chessboard.css";
 import Tile from "../Tiles/tile";
-import {ChessMove} from "../../../src/chess_commands";
+import {ChessMove} from "../../chess_commands";
 import {
   VERTICAL_AXIS,
   HORIZONTAL_AXIS,
