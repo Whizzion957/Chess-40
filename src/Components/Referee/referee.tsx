@@ -17,12 +17,23 @@ const Referee: FC = () => {
     const runScript = async () => {
         try {
             const response = await axios.post<{ output: string, error: string }>('http://localhost:5000/run-script');
-            console.log('Output:', response.data.output);
+            console.log('Output:', response.data);
             console.log('Error:', response.data.error);
         } catch (error) {
             console.error('Error running script:', error);
         }
     };
+
+    const ExpressScript = async () => {
+        try {
+            const response = await axios.post<{ output: string, error: string }>('http://localhost:4000');
+            console.log('Output:', response.data);
+            console.log('Error:', response.data.error);
+        } catch (error) {
+            console.error('Error running script:', error);
+        }
+    };
+    ExpressScript();
 
     function playMove(playedPiece: Piece, destination: Position): boolean {
         // If the playing piece doesn't have any moves return

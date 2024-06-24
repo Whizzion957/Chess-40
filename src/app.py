@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask,make_response, request, jsonify
 import subprocess
 import logging
+from implement import a
 
 app = Flask(__name__)
 
@@ -10,9 +11,13 @@ logging.basicConfig(level=logging.DEBUG)
 def run_script():
     try:
         logging.info('Running the Python script...')
-        result = subprocess.run(['python', 'implement.py'], capture_output=True, text=True)
+        resp = a()
+        logging.info(resp)
+        resp = make_response(resp)
+        logging.info('Script ran successfully  1')
+        resp.headers['Access-Control-Allow-Origin'] = '*'
         logging.info('Script ran successfully.')
-        return jsonify({'output': result.stdout, 'error': result.stderr})
+        return resp
     except Exception as e:
         logging.error(f'Error running script: {str(e)}')
         return jsonify({'error': str(e)})

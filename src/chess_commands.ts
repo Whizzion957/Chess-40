@@ -7,10 +7,10 @@ export class ChessMove {
     finalY: number;
 
     constructor(piece: string, initialX: string, initialY: number, finalX: string, finalY: number) {
-        this.piece = 'bishop';
+        this.piece = 'queen';
         this.initialX = 'a';
         this.initialY = 1;
-        this.finalX = 'a';
+        this.finalX = 's';
         this.finalY = 2;
     }
 }
