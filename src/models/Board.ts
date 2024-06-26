@@ -189,6 +189,10 @@ export class Board {
         return true;
     }
 
+    updateTurns(x : number): void{
+        this.totalTurns = x;
+    }
+
     clone(): Board {
         return new Board(this.pieces.map(p => p.clone()),
             this.totalTurns);

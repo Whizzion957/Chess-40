@@ -11,6 +11,10 @@ export class Position {
             this.y === otherPosition.y;
     }
 
+    updateposition(a:number,b:number): void{
+        this.x = a;
+        this.y= b;
+    }
     clone(): Position {
         return new Position(this.x, this.y);
     }
