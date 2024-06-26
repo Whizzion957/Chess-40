@@ -32,6 +32,11 @@ def recognize_and_struct_chess_move():
         }
         return misinterpretations.get(word, word)
 
+    def is_valid_position(pos):
+        if len(pos) == 2 and pos[0] in "abcdefgh" and pos[1] in "12345678":
+            return True
+        return False
+
     def parse_chess_move(text):
         pieces = ["king", "queen", "rook", "bishop", "knight", "pawn"]
         piece = ""
@@ -44,7 +49,7 @@ def recognize_and_struct_chess_move():
             corrected_word = correct_misinterpretations(word)
             if corrected_word in pieces:
                 piece = corrected_word
-            elif len(corrected_word) == 2 and corrected_word[0].isalpha() and corrected_word[1].isdigit():
+            elif is_valid_position(corrected_word):
                 if not initial_pos:
                     initial_pos = corrected_word
                 else:
@@ -57,7 +62,7 @@ def recognize_and_struct_chess_move():
             return f"{piece} {initial_pos} {final_pos}"
         else:
             return "Invalid input"
-        
+
     def save_command_as_ts(piece, initial_pos, final_pos, filename="chess_commands.ts"):
         class_template = f"""
 export class ChessMove {{
@@ -76,7 +81,7 @@ export class ChessMove {{
     }}
 }}
 """
-        with open(filename, "w") as file:  # Open the file in write mode to overwrite content
+        with open(filename, "w") as file:  
             file.write(class_template)
 
     speech_text = recognize_speech()
@@ -87,3 +92,5 @@ export class ChessMove {{
             save_command_as_ts(piece, initial_pos, final_pos)
         return output
     return "No valid speech recognized"
+
+
