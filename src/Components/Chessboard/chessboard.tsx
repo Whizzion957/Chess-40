@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import axios from 'axios';
 import "./chessboard.css";
 import Tile from "../Tiles/tile";
 import {ChessMove} from "../../chess_commands";
@@ -10,7 +11,7 @@ import {
 import { Piece, Position } from "../../models";
 
 interface Props {
-  playMove: (piece: Piece, position: Position) => boolean;
+  playMove: (piece: Piece, position: Position) => number;
   pieces: Piece[];
 }
 
@@ -78,7 +79,7 @@ export default function Chessboard({playMove, pieces} : Props) {
     }
   }
 
-  function dropPiece(e: React.MouseEvent) {
+  async function dropPiece(e: React.MouseEvent) {
     const chessboard = chessboardRef.current;
     if (activePiece && chessboard) {
       const x = Math.floor((e.clientX - chessboard.offsetLeft) / GRID_SIZE);
@@ -92,12 +93,21 @@ export default function Chessboard({playMove, pieces} : Props) {
 
       if (currentPiece) {
         var succes = playMove(currentPiece.clone(), new Position(x, y));
-
-        if(!succes) {
+        if(succes==0) {
           //RESETS THE PIECE POSITION
           activePiece.style.position = "relative";
           activePiece.style.removeProperty("top");
           activePiece.style.removeProperty("left");
+        }
+        else{
+          //UPDATE POSITION IN DB
+          console.log("UPDATING");
+          let url = `http://localhost:4000/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
+          const response = await axios.get<{ output: string, error: string }>(url);
+          url = `http://localhost:4000/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
+          const response2 = await axios.get<{ output: string, error: string }>(url);
+          url = `http://localhost:4000/turns?turn=${succes}&log=${currentPiece.team} ${currentPiece.type} moved from ${String.fromCharCode(currentPiece.position.x+65)}${currentPiece.position.y+1} to ${String.fromCharCode(x+65)}${y+1} `;
+          const response3 = await axios.get<{ output: string, error: string }>(url);
         }
       }
       setActivePiece(null);
