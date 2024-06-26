@@ -123,6 +123,16 @@ const Referee: FC = () => {
             console.error('Error running script:', error);
         }
     };
+    const Restart = async () => {
+        try {
+            const response = await axios.post<{ output: string, error: string }>('http://localhost:4000/restart');
+            // console.log('Output:', response.data);
+            checkmateModalRef.current?.classList.add("hidden");
+            setBoard(initialBoard.clone());
+        } catch (error) {
+            console.error('Error running script:', error);
+        }
+    };
     function playMove(playedPiece: Piece, destination: Position): number {
         // console.log(playedPiece.possibleMoves);
         // If the playing piece doesn't have any moves return
@@ -268,10 +278,6 @@ const Referee: FC = () => {
         return (promotionPawn?.team === TeamType.OUR) ? "W" : "B";
     }
 
-    function restartGame() {
-        checkmateModalRef.current?.classList.add("hidden");
-        setBoard(initialBoard.clone());
-    }
     const handleReload = () => {
         window.location.reload();
       };
@@ -279,7 +285,7 @@ const Referee: FC = () => {
         <>
             <p style={{ color: "white", fontSize: "24px", textAlign: "center" }}>Total turns: {board.totalTurns}</p>
             <button onClick={runScript}>Run Python Script</button>
-            <button onClick={handleReload}>Reload Page</button>            <div className="modal hidden" ref={modalRef}>
+            <button onClick={Restart}>Restart Game</button>            <div className="modal hidden" ref={modalRef}>
                 <div className="modal-body">
                     <img onClick={() => promotePawn(PieceType.ROOK)} src={`/Assets/Images/${promotionTeamType()}_Rook.png`} />
                     <img onClick={() => promotePawn(PieceType.BISHOP)} src={`/Assets/Images/${promotionTeamType()}_Bishop.png`} />
@@ -291,7 +297,7 @@ const Referee: FC = () => {
                 <div className="modal-body">
                     <div className="checkmate-body">
                         <span>The winning team is {board.winningTeam === TeamType.OUR ? "white" : "black"}!</span>
-                        <button onClick={restartGame}>Play again</button>
+                        <button onClick={Restart}>Play again</button>
                     </div>
                 </div>
             </div>

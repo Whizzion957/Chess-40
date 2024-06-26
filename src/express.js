@@ -16,12 +16,37 @@ function getAllPromise(query, params) {
       })
   })
 }
+function getRunPromise(query) {
+  return new Promise((resolve, reject) => {
+      db.run(query, (err) => {
+          if(err) {
+            console.log(err);
+          }
+          // "return" the result when the action finish
+          resolve("Done");
+      })
+  })
+}
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
-// db.run('DROP TABLE Chess');
-// db.run(`CREATE TABLE Chess AS SELECT * FROM IntialPosition`);
+
+app.post('/restart', async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  let sql = `DROP TABLE Chess`;
+  let x = await getRunPromise(sql);
+  sql = `CREATE TABLE Chess AS SELECT * FROM IntialPosition`;
+  x = await getRunPromise(sql);
+  sql = `DROP TABLE Turns`;
+  x = await getRunPromise(sql);
+  sql = `CREATE TABLE Turns(Turn INTEGER PRIMARY KEY,Log TEXT)`;
+  x = await getRunPromise(sql);
+  res.send(x);
+  sql = `INSERT INTO Turns VALUES(?,?)`
+  x = await getAllPromise(sql,[1,"Sourav"]);
+});
 
 app.post('/chess', async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
