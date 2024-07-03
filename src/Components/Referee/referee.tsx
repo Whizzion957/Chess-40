@@ -157,11 +157,12 @@ export default function Referee() {
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         setBoard(initialBoard.clone());
+        window.location.reload();
+
     }
 
     return (
         <>
-            <p style={{ color: "white", fontSize: "24px", textAlign: "center" }}>Total turns: {board.totalTurns}</p>
             <div className="modal hidden" ref={modalRef}>
                 <div className="modal-body">
                     <img onClick={() => promotePawn(PieceType.ROOK)} src={`/Assets/Images/${promotionTeamType()}_Rook.png`} />
