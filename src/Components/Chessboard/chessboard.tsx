@@ -129,6 +129,15 @@ export default function Chessboard({ playMove, pieces }: Props) {
     }
   }
 
+  const runScript = async () => {
+    try {
+        const response = await axios.post<{ output: string, error: string }>('http://localhost:5000/run-script');
+        console.log('Output:', response.data);
+    } catch (error) {
+        console.error('Error running script:', error);
+    }
+  };
+
   // Function to convert Position to chess notation (e.g., (4, 1) to "e2")
   const positionToChessNotation = (position: Position): string => {
     const file = String.fromCharCode(97 + position.x); // 'a' is ASCII 97
@@ -179,7 +188,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
         </div>
       </div>
       <div className="voice">
-        <button>
+        <button onClick={runScript}>
           <span>Voice Control</span>
         </button>
       </div>

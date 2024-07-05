@@ -168,14 +168,6 @@ const Referee: FC = () => {
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
 
-    const runScript = async () => {
-        try {
-            const response = await axios.post<{ output: string, error: string }>('http://localhost:5000/run-script');
-            console.log('Output:', response.data);
-        } catch (error) {
-            console.error('Error running script:', error);
-        }
-    };
     const Restart = async () => {
         try {
             const response = await axios.post<{ output: string, error: string }>('http://localhost:4000/restart');
