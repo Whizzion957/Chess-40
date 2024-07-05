@@ -41,11 +41,9 @@ app.post('/restart', async (req, res) => {
   x = await getRunPromise(sql);
   sql = `DROP TABLE Turns`;
   x = await getRunPromise(sql);
-  sql = `CREATE TABLE Turns(Turn INTEGER PRIMARY KEY,Log TEXT)`;
+  sql = `CREATE TABLE Turns(Log TEXT)`;
   x = await getRunPromise(sql);
   res.send(x);
-  sql = `INSERT INTO Turns VALUES(?,?)`
-  x = await getAllPromise(sql,[1,"Sourav"]);
 });
 
 app.post('/chess', async (req, res) => {
@@ -56,10 +54,17 @@ app.post('/chess', async (req, res) => {
   res.send(x);
 });
 
+app.post('/log', async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  let sql = `SELECT * FROM Turns WHERE Log!= ?`;
+  let x = await getAllPromise(sql,"null");
+  res.send(x);
+});
 app.post('/turn', async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  let sql = `SELECT MAX(Turn) AS x FROM Turns WHERE Turn!= ?`;
+  let sql = `SELECT COUNT(*) AS Turn FROM Turns WHERE Log!= ?`;
   let x = await getAllPromise(sql,"null");
   res.send(x);
 });
@@ -76,15 +81,25 @@ app.get('/push',async(req,res)=>{
   }
   res.send("DONE");
 });
-
+app.get('/upgradePawn',async(req,res)=>{
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  if(req.query.ix != undefined && req.query.iy != undefined && req.query.type != undefined){
+    let ix = req.query.ix;
+    let iy = req.query.iy;
+    let type = req.query.type;
+    sql = `UPDATE Chess SET Element = ? WHERE PositionX = ? AND PositionY= ?`
+    let ans = await getAllPromise(sql,[type,ix,iy]);
+  }
+  res.send("DONE");
+});
 app.get('/turns',async(req,res)=>{
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  if(req.query.turn != undefined && req.query.log != undefined){
-    let turn = req.query.turn;
+  if(req.query.log != undefined){
     let log = req.query.log;
-    sql = `INSERT INTO Turns VALUES(?,?)`
-    let ans = await getAllPromise(sql,[turn,log]);
+    sql = `INSERT INTO Turns VALUES(?)`
+    let ans = await getAllPromise(sql,[log]);
   }
   res.send("DONE");
 });

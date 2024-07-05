@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import "./chessboard.css";
 import Tile from "../Tiles/tile";
@@ -15,6 +15,18 @@ export default function Chessboard({ playMove, pieces }: Props) {
   const [grabPosition, setGrabPosition] = useState<Position>(new Position(-1, -1));
   const [moves, setMoves] = useState<string[]>([]); 
   const chessboardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(()=>{
+    const logs = async () =>{
+      let sa : string[] = [];
+      const res = await axios.post('http://localhost:4000/log');
+      for(const key in res.data){
+        sa.push(res.data[key]["Log"]);
+      }
+      setMoves(sa);
+    }
+    logs();
+  },[])
 
   function grabPiece(e: React.MouseEvent) {
     const element = e.target as HTMLElement;
@@ -97,15 +109,14 @@ export default function Chessboard({ playMove, pieces }: Props) {
               moveNotation += " en passant";
             }
           }
+          let url = `http://localhost:4000/turns?log=${moveNotation}`;
+          const response3 = await axios.get<{ output: string, error: string }>(url);
           setMoves([...moves, moveNotation]);
           //UPDATE POSITION IN DB
-          console.log("UPDATING");
-          let url = `http://localhost:4000/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
+          url = `http://localhost:4000/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
           const response = await axios.get<{ output: string, error: string }>(url);
           url = `http://localhost:4000/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
           const response2 = await axios.get<{ output: string, error: string }>(url);
-          url = `http://localhost:4000/turns?turn=${succes}&log=${currentPiece.team} ${currentPiece.type} moved from ${String.fromCharCode(currentPiece.position.x+65)}${currentPiece.position.y+1} to ${String.fromCharCode(x+65)}${y+1} `;
-          const response3 = await axios.get<{ output: string, error: string }>(url);
         }
         else{
           activePiece.style.position = "relative";

@@ -62,7 +62,8 @@ export class Board {
 
                 // Get the piece of the cloned board
                 const clonedPiece = simulatedBoard.pieces.find(p => p.samePiecePosition(piece))!;
-                clonedPiece.position = move.clone();
+                // console.log(clonedPiece,piece);
+                if(clonedPiece) clonedPiece.position = move.clone();
 
                 // Get the king of the cloned board
                 const clonedKing = simulatedBoard.pieces.find(p => p.isKing && p.team === simulatedBoard.currentTeam)!;

@@ -17,7 +17,10 @@ const Referee: FC = () => {
             try {
                 const response = await axios.post('http://localhost:4000/chess');
                 const response2 = await axios.post('http://localhost:4000/turn');
-                iniboard.updateTurns(response2.data[0]["x"]);
+                let t = response2.data[0]["Turn"];
+                t*=2;
+                if(t%4) t--;
+                iniboard.updateTurns(t+1);
                 if(response.data){
                     let x = response.data;
                     var W_Pawn: number[] = [];
@@ -25,13 +28,13 @@ const Referee: FC = () => {
                     var W_Rook: number[] = [];
                     var W_Knight: number[] = [];
                     var W_King: number = -1;
-                    var W_Queen: number = -1;
+                    var W_Queen: number[] = [];
                     var B_Pawn: number[] = [];
                     var B_Bishop: number[] = [];
                     var B_Rook: number[] = [];
                     var B_Knight: number[] = [];
                     var B_King: number = -1;
-                    var B_Queen: number = -1;
+                    var B_Queen: number[] = [];
                     for (const key in x) {
                         if (Object.prototype.hasOwnProperty.call(x, key)) {
                             switch (x[key]["Element"]) {
@@ -66,10 +69,10 @@ const Referee: FC = () => {
                                     W_King= (x[key]["PositionX"]*10)+x[key]["PositionY"];
                                     break;
                                 case "B_Queen":
-                                    B_Queen= (x[key]["PositionX"]*10)+x[key]["PositionY"];
+                                    B_Queen.push((x[key]["PositionX"]*10)+x[key]["PositionY"]);
                                     break;
                                 case "W_Queen":
-                                    W_Queen= (x[key]["PositionX"]*10)+x[key]["PositionY"];
+                                    W_Queen.push((x[key]["PositionX"]*10)+x[key]["PositionY"]);
                                     break;
                             }
                         }
@@ -82,6 +85,56 @@ const Referee: FC = () => {
                     var bb=0;
                     var wp=0;
                     var bp=0;
+                    var wq=0;
+                    var bq=0;
+                    if(W_Queen.length>=2){
+                        for(let i=0;i<(W_Queen.length-1);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.QUEEN,
+                            TeamType.OUR, true));
+                        }
+                    }
+                    if(B_Queen.length>=2){
+                        for(let i=0;i<(B_Queen.length-1);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.QUEEN,
+                            TeamType.OPPONENT, true));
+                        }
+                    }
+                    if(B_Knight.length>=3){
+                        for(let i=0;i<(B_Knight.length-2);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.KNIGHT,
+                            TeamType.OPPONENT, true));
+                        }
+                    }
+                    if(B_Rook.length>=3){
+                        for(let i=0;i<(B_Rook.length-2);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.ROOK,
+                            TeamType.OPPONENT, true));
+                        }
+                    }
+                    if(B_Bishop.length>=3){
+                        for(let i=0;i<(B_Bishop.length-2);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.BISHOP,
+                            TeamType.OPPONENT, true));
+                        }
+                    }
+                    if(W_Knight.length>=3){
+                        for(let i=0;i<(W_Knight.length-2);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.KNIGHT,
+                            TeamType.OUR, true));
+                        }
+                    }
+                    if(W_Rook.length>=3){
+                        for(let i=0;i<(W_Rook.length-2);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.ROOK,
+                            TeamType.OUR, true));
+                        }
+                    }
+                    if(W_Bishop.length>=3){
+                        for(let i=0;i<(W_Bishop.length-2);i++){
+                            iniboard.pieces.push(new Piece(new Position(-1,-1),PieceType.BISHOP,
+                            TeamType.OUR, true));
+                        }
+                    }
                     for (const p of iniboard.pieces) {
                         if(p.team=='W'){
                             if(p.type=='Rook') {p.position.updateposition((W_Rook[wr]-W_Rook[wr]%10)/10,W_Rook[wr]%10);wr++}
@@ -89,7 +142,7 @@ const Referee: FC = () => {
                             else if(p.type=='Bishop') {p.position.updateposition((W_Bishop[wb]-W_Bishop[wb]%10)/10,W_Bishop[wb]%10);wb++}
                             else if(p.type=='Pawn') {p.position.updateposition((W_Pawn[wp]-W_Pawn[wp]%10)/10,W_Pawn[wp]%10);wp++}
                             else if(p.type=='King') {p.position.updateposition((W_King-W_King%10)/10,W_King%10);}
-                            else if(p.type=='Queen') {p.position.updateposition((W_Queen-W_Queen%10)/10,W_Queen%10);}
+                            else if(p.type=='Queen') {p.position.updateposition((W_Queen[wq]-W_Queen[wq]%10)/10,W_Queen[wq]%10);wq++}
                         }
                         else{
                             if(p.type=='Rook') {p.position.updateposition((B_Rook[br]-B_Rook[br]%10)/10,B_Rook[br]%10);br++}
@@ -97,7 +150,7 @@ const Referee: FC = () => {
                             else if(p.type=='Bishop') {p.position.updateposition((B_Bishop[bb]-B_Bishop[bb]%10)/10,B_Bishop[bb]%10);bb++}
                             else if(p.type=='Pawn') {p.position.updateposition((B_Pawn[bp]-B_Pawn[bp]%10)/10,B_Pawn[bp]%10);bp++}
                             else if(p.type=='King') {p.position.updateposition((B_King-B_King%10)/10,B_King%10);}
-                            else if(p.type=='Queen') {p.position.updateposition((B_Queen-B_Queen%10)/10,B_Queen%10);}
+                            else if(p.type=='Queen') {p.position.updateposition((B_Queen[bq]-B_Queen[bq]%10)/10,B_Queen[bq]%10);bq++}
                         }
                     }
                     iniboard.calculateAllMoves();
@@ -249,14 +302,26 @@ const Referee: FC = () => {
         return validMove;
     }
 
-    function promotePawn(pieceType: PieceType) {
+    async function promotePawn(pieceType: PieceType) {
         if (promotionPawn === undefined) {
             return;
         }
-
-        setBoard((previousBoard) => {
-            const clonedBoard = board.clone();
-            clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
+        const clonedBoard = board.clone();
+        let p;
+        if(clonedBoard) clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
+            if (piece.samePiecePosition(promotionPawn)){
+                p=piece;
+            }
+            return results;
+        }, [] as Piece[]);
+        if(p){
+            console.log(p,pieceType);
+            let url = `http://localhost:4000/upgradePawn?type=${p["team"]+"_"+pieceType}&ix=${p["position"]["x"]}&iy=${p["position"]["y"]}`;
+            const response = await axios.get<{ output: string, error: string }>(url);
+        }
+        setBoard(() => {
+            const clonedBoard2 = board.clone();
+            clonedBoard2.pieces = clonedBoard2.pieces.reduce((results, piece) => {
                 if (piece.samePiecePosition(promotionPawn)) {
                     results.push(new Piece(piece.position.clone(), pieceType,
                         piece.team, true));
@@ -265,11 +330,9 @@ const Referee: FC = () => {
                 }
                 return results;
             }, [] as Piece[]);
-
-            clonedBoard.calculateAllMoves();
-
-            return clonedBoard;
-        })
+            clonedBoard2.calculateAllMoves();
+            return clonedBoard2;
+        });
 
         modalRef.current?.classList.add("hidden");
     }
@@ -299,6 +362,7 @@ const Referee: FC = () => {
                     </div>
                 </div>
             </div>
+            <button onClick={Restart}>Restart</button>
             <Chessboard playMove={playMove}
                 pieces={board.pieces} />
         </>
