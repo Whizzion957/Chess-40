@@ -54,6 +54,6 @@ export class Piece {
     clone(): Piece {
         return new Piece(this.position.clone(),
              this.type, this.team, this.hasMoved,
-             this.possibleMoves?.map(m => m.clone()));
+             this.possibleMoves?.map(m => m.clone()) ?? []);
     }
 }

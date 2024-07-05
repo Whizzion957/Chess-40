@@ -283,9 +283,7 @@ const Referee: FC = () => {
       };
     return (
         <>
-            <p style={{ color: "white", fontSize: "24px", textAlign: "center" }}>Total turns: {board.totalTurns}</p>
-            <button onClick={runScript}>Run Python Script</button>
-            <button onClick={Restart}>Restart Game</button>            <div className="modal hidden" ref={modalRef}>
+            <div className="modal hidden" ref={modalRef}>
                 <div className="modal-body">
                     <img onClick={() => promotePawn(PieceType.ROOK)} src={`/Assets/Images/${promotionTeamType()}_Rook.png`} />
                     <img onClick={() => promotePawn(PieceType.BISHOP)} src={`/Assets/Images/${promotionTeamType()}_Bishop.png`} />
