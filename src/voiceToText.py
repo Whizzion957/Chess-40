@@ -59,7 +59,7 @@ def recognize_and_struct_chess_move():
 
     def format_output(piece, initial_pos, final_pos):
         if piece and initial_pos and final_pos:
-            return f"{piece} {initial_pos} {final_pos}"
+            return f"{initial_pos} {final_pos}"
         else:
             return "Invalid input"
 

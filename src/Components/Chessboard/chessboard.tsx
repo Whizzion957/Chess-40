@@ -27,8 +27,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
     }
     logs();
   },[])
-
-  function grabPiece(e: React.MouseEvent) {
+    function grabPiece(e: React.MouseEvent) {
     const element = e.target as HTMLElement;
     const chessboard = chessboardRef.current;
     if (element.classList.contains("chess-piece") && chessboard) {
@@ -41,7 +40,6 @@ export default function Chessboard({ playMove, pieces }: Props) {
       element.style.position = "absolute";
       element.style.left = `${x}px`;
       element.style.top = `${y}px`;
-
       setActivePiece(element);
     }
   }
@@ -56,7 +54,6 @@ export default function Chessboard({ playMove, pieces }: Props) {
       const x = e.clientX - 50;
       const y = e.clientY - 50;
       activePiece.style.position = "absolute";
-
       // Clamp the piece position within the chessboard bounds
       if (x < minX) {
         activePiece.style.left = `${minX}px`;
@@ -81,14 +78,11 @@ export default function Chessboard({ playMove, pieces }: Props) {
     if (activePiece && chessboard) {
       const x = Math.floor((e.clientX - chessboard.offsetLeft) / GRID_SIZE);
       const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - 800) / GRID_SIZE));
-  
       const currentPiece = pieces.find((p) => p.samePosition(grabPosition));
-  
       if (currentPiece) {
         const opponentPiece = pieces.find((p) => p.samePosition(new Position(x, y)));
         const success = playMove(currentPiece.clone(), new Position(x, y));
-        
-  
+
         if (success) {
           const newPosition = new Position(x, y);
           let moveNotation = "";
@@ -129,12 +123,47 @@ export default function Chessboard({ playMove, pieces }: Props) {
     }
   }
 
-  const runScript = async () => {
+  //Mapping Function
+  const charToIndex = (char: string): number => {
+    const charMap: { [key: string]: number } = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7 };
+    return charMap[char];
+  }
+
+  //Mapping Function
+  const indexToIndex = (char: string): number => {
+    const charMap: { [key: string]: number } = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7 };
+    return charMap[char];
+  }
+
+  
+
+  const runVoiceCommand = async () => {
     try {
-        const response = await axios.post<{ output: string, error: string }>('http://localhost:5000/run-script');
-        console.log('Output:', response.data);
+      const response = await axios.post<{ piece: string, from: string, to: string }>('http://localhost:5000/run-script');
+      const initialX = charToIndex(response.data.from[0]);
+      const initialY = indexToIndex(response.data.from[1]);
+      const finalX = charToIndex(response.data.to[0]);
+      const finalY = indexToIndex(response.data.to[1]);
+
+      const simulateMouseEvent = (element: HTMLDivElement, type: string, coordX: number, coordY: number) => {
+        const event = new MouseEvent(type, {
+          bubbles: true,
+          clientX: ((coordX + 0.5) * GRID_SIZE) + element.offsetLeft,
+          clientY: ((coordY - 0.5) * GRID_SIZE) + element.offsetTop + 800,
+          button: 0,
+        });
+        element.dispatchEvent(event);
+        console.log(event.clientX,event.clientY);
+      };
+      const chessboard = chessboardRef.current;
+      if(chessboard)
+      {
+      simulateMouseEvent(chessboard, 'mousedown', initialX, initialY);
+      simulateMouseEvent(chessboard, 'mousemove', finalX, finalY);
+      simulateMouseEvent(chessboard, 'mouseup', finalX, finalY);
+      }
     } catch (error) {
-        console.error('Error running script:', error);
+      console.error('Error running voice command:', error);
     }
   };
 
@@ -188,7 +217,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
         </div>
       </div>
       <div className="voice">
-        <button onClick={runScript}>
+        <button onClick={runVoiceCommand}>
           <span>Voice Control</span>
         </button>
       </div>
