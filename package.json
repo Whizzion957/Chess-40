@@ -20,7 +20,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    
+   "start":"src/node express.js"
   },
   "eslintConfig": {
     "extends": [
