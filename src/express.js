@@ -68,6 +68,18 @@ app.post('/turn', async (req, res) => {
   let x = await getAllPromise(sql,"null");
   res.send(x);
 });
+app.post('/getElement',async(req,res)=>{
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  let ans = "issue";
+  if(req.query.x != undefined && req.query.y != undefined){
+    let x = req.query.x;
+    let y = req.query.y;
+    sql = `SELECT Element FROM Chess WHERE PositionX = ? AND PositionY= ?`
+    ans = await getAllPromise(sql,[x,y]);
+  }
+  res.send(ans);
+});
 app.get('/push',async(req,res)=>{
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

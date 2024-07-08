@@ -29,7 +29,6 @@ const Logbook: React.FC<LogbookProps> = ({ moves }) => {
           ))}
         </tbody>
       </table>
-      <h2 style={{color: "red"}}>To Delete last games log:- Refresh the Page</h2>
     </div>
   );
 };

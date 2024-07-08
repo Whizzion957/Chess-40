@@ -135,36 +135,87 @@ export default function Chessboard({ playMove, pieces }: Props) {
     return charMap[char];
   }
 
-  
+  function selectElementsByBgImage(url : string) {
+    const elements = document.getElementsByClassName('chess-piece') as HTMLCollectionOf<HTMLElement>; 
+    for(let i=0;i<elements.length;i++){
+      if(elements[i].style.backgroundImage==url) return elements[i];
+    }
+}
 
   const runVoiceCommand = async () => {
     try {
       const response = await axios.post<{ piece: string, from: string, to: string }>('http://localhost:5000/run-script');
-      const initialX = charToIndex(response.data.from[0]);
-      const initialY = indexToIndex(response.data.from[1]);
-      const finalX = charToIndex(response.data.to[0]);
-      const finalY = indexToIndex(response.data.to[1]);
-
-      const simulateMouseEvent = (element: HTMLDivElement, type: string, coordX: number, coordY: number) => {
-        const event = new MouseEvent(type, {
-          bubbles: true,
-          clientX: ((coordX + 0.5) * GRID_SIZE) + element.offsetLeft,
-          clientY: ((coordY - 0.5) * GRID_SIZE) + element.offsetTop + 800,
-          button: 0,
-        });
-        element.dispatchEvent(event);
-        console.log(event.clientX,event.clientY);
-      };
-      const chessboard = chessboardRef.current;
-      if(chessboard)
-      {
-      simulateMouseEvent(chessboard, 'mousedown', initialX, initialY);
-      simulateMouseEvent(chessboard, 'mousemove', finalX, finalY);
-      simulateMouseEvent(chessboard, 'mouseup', finalX, finalY);
+      var st = response.data.toString();
+      if(st=="Invalid input"){
+        alert("Invalid, Please try again");
+        runVoiceCommand();
+        return;
       }
-    } catch (error) {
-      console.error('Error running voice command:', error);
-    }
+      const initialX = charToIndex(st[0]);
+      const initialY = indexToIndex(st[1]);
+      const finalX = charToIndex(st[st.length-2]);
+      const finalY = indexToIndex(st[st.length-1]);
+      const response2 = await axios.post(`http://localhost:4000/getElement?x=${initialX}&y=${initialY}`);
+      const ele = response2.data[0]["Element"];
+      const element = selectElementsByBgImage(`url("Assets/Images/${ele}.png")`);
+        const chessboard = chessboardRef.current;
+        if (element && element.classList.contains("chess-piece") && chessboard) {
+          const x = ((initialX + 0.5) * GRID_SIZE) + chessboard.offsetLeft - GRID_SIZE / 2;
+          const y = ((7 -initialY + 0.5) * GRID_SIZE) + chessboard.offsetTop - GRID_SIZE / 2;
+          element.style.position = "absolute";
+          element.style.left = `${x}px`;
+          element.style.top = `${y}px`;
+        }
+        var grabPosition2 = new Position(initialX,initialY);
+        if (chessboard && element) {
+          const x = finalX;
+          const y = finalY;
+          const currentPiece = pieces.find((p) => p.samePosition(grabPosition2));
+          if (currentPiece) {
+            const opponentPiece = pieces.find((p) => p.samePosition(new Position(x, y)));
+            const success = playMove(currentPiece.clone(), new Position(x, y));
+            if (success) {
+              const newPosition = new Position(x, y);
+              let moveNotation = "";
+              if (opponentPiece) {
+                moveNotation = `${currentPiece.type} takes ${opponentPiece.type} ${positionToChessNotation(newPosition)}`;
+                if (currentPiece.isKing && Math.abs(grabPosition2.x - x) > 1) {
+                  if (x === 7) {
+                    moveNotation="O-O";
+                  } 
+                  else if (x === 0) {
+                    moveNotation = "O-O-O";
+                  }
+                }
+              } 
+              else {
+                moveNotation = `${currentPiece.type} ${positionToChessNotation(newPosition)}`;
+                if (currentPiece.isPawn && grabPosition2.x!==x) {
+                  moveNotation += " en passant";
+                }
+              }
+              let url = `http://localhost:4000/turns?log=${moveNotation}`;
+              const response3 = await axios.get<{ output: string, error: string }>(url);
+              setMoves([...moves, moveNotation]);
+              //UPDATE POSITION IN DB
+              url = `http://localhost:4000/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
+              const response = await axios.get<{ output: string, error: string }>(url);
+              url = `http://localhost:4000/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
+              const response2 = await axios.get<{ output: string, error: string }>(url);
+            }
+            else{
+              element.style.position = "relative";
+              element.style.removeProperty("top");
+              element.style.removeProperty("left");
+              alert("This move is not possible");
+            }
+          }
+          setActivePiece(null);
+        }
+        window.location.reload();
+      } catch (error) {
+        console.error('Error running voice command:', error);
+      }
   };
 
   // Function to convert Position to chess notation (e.g., (4, 1) to "e2")

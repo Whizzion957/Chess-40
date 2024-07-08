@@ -174,6 +174,7 @@ const Referee: FC = () => {
             // console.log('Output:', response.data);
             checkmateModalRef.current?.classList.add("hidden");
             setBoard(initialBoard.clone());
+            window.location.reload();
         } catch (error) {
             console.error('Error running script:', error);
         }
@@ -203,6 +204,7 @@ const Referee: FC = () => {
             playedPiece.team
         );
 
+        playedMoveIsValid = enPassantMove || validMove;
         // playMove modifies the board thus we
         // need to call setBoard
         setBoard(() => {
@@ -232,8 +234,7 @@ const Referee: FC = () => {
                 return clonedPlayedPiece;
             });
         }
-
-        if(playedMoveIsValid) return turn;
+        if(playedMoveIsValid) return 1;
         else return 0;
     }
 
