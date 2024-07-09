@@ -19,7 +19,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
   useEffect(()=>{
     const logs = async () =>{
       let sa : string[] = [];
-      const res = await axios.post('https://chess-40-backend.onrender.com/log');
+      const res = await axios.post('https://chess-40-backend-1mup.onrender.com/log');
       for(const key in res.data){
         sa.push(res.data[key]["Log"]);
       }
@@ -103,13 +103,13 @@ export default function Chessboard({ playMove, pieces }: Props) {
               moveNotation += " en passant";
             }
           }
-          let url = `https://chess-40-backend.onrender.com/turns?log=${moveNotation}`;
+          let url = `https://chess-40-backend-1mup.onrender.com/turns?log=${moveNotation}`;
           const response3 = await axios.get<{ output: string, error: string }>(url);
           setMoves([...moves, moveNotation]);
           //UPDATE POSITION IN DB
-          url = `https://chess-40-backend.onrender.com/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
+          url = `https://chess-40-backend-1mup.onrender.com/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
           const response = await axios.get<{ output: string, error: string }>(url);
-          url = `https://chess-40-backend.onrender.com/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
+          url = `https://chess-40-backend-1mup.onrender.com/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
           const response2 = await axios.get<{ output: string, error: string }>(url);
         }
         else{
@@ -144,7 +144,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
 
   const runVoiceCommand = async () => {
     try {
-      const response = await axios.post<{ piece: string, from: string, to: string }>('https://chess-40.onrender.com/run-script');
+      const response = await axios.post<{ piece: string, from: string, to: string }>('https://chess-40-python.onrender.com/run-script');
       var st = response.data.toString();
       if(st=="Invalid input"){
         alert("Invalid, Please try again");
@@ -155,7 +155,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
       const initialY = indexToIndex(st[1]);
       const finalX = charToIndex(st[st.length-2]);
       const finalY = indexToIndex(st[st.length-1]);
-      const response2 = await axios.post(`https://chess-40-backend.onrender.com/getElement?x=${initialX}&y=${initialY}`);
+      const response2 = await axios.post(`https://chess-40-backend-1mup.onrender.com/getElement?x=${initialX}&y=${initialY}`);
       const ele = response2.data[0]["Element"];
       const element = selectElementsByBgImage(`url("Assets/Images/${ele}.png")`);
         const chessboard = chessboardRef.current;
@@ -194,13 +194,13 @@ export default function Chessboard({ playMove, pieces }: Props) {
                   moveNotation += " en passant";
                 }
               }
-              let url = `https://chess-40-backend.onrender.com/turns?log=${moveNotation}`;
+              let url = `https://chess-40-backend-1mup.onrender.com/turns?log=${moveNotation}`;
               const response3 = await axios.get<{ output: string, error: string }>(url);
               setMoves([...moves, moveNotation]);
               //UPDATE POSITION IN DB
-              url = `https://chess-40-backend.onrender.com/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
+              url = `https://chess-40-backend-1mup.onrender.com/push?fx=${-1}&fy=${-1}&ix=${x}&iy=${y}`;
               const response = await axios.get<{ output: string, error: string }>(url);
-              url = `https://chess-40-backend.onrender.com/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
+              url = `https://chess-40-backend-1mup.onrender.com/push?fx=${x}&fy=${y}&ix=${currentPiece.position.x}&iy=${currentPiece.position.y}`;
               const response2 = await axios.get<{ output: string, error: string }>(url);
             }
             else{

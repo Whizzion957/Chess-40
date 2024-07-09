@@ -15,8 +15,8 @@ const Referee: FC = () => {
     useEffect(()=>{
         const ExpressScript = async () => {
             try {
-                const response = await axios.post('https://chess-40-backend.onrender.com/chess');
-                const response2 = await axios.post('https://chess-40-backend.onrender.com/turn');
+                const response = await axios.post('https://chess-40-backend-1mup.onrender.com/chess');
+                const response2 = await axios.post('https://chess-40-backend-1mup.onrender.com/turn');
                 let t = response2.data[0]["Turn"];
                 t*=2;
                 if(t%4) t--;
@@ -170,7 +170,7 @@ const Referee: FC = () => {
 
     const Restart = async () => {
         try {
-            const response = await axios.post<{ output: string, error: string }>('https://chess-40-backend.onrender.com/restart');
+            const response = await axios.post<{ output: string, error: string }>('https://chess-40-backend-1mup.onrender.com/restart');
             // console.log('Output:', response.data);
             checkmateModalRef.current?.classList.add("hidden");
             setBoard(initialBoard.clone());
@@ -309,7 +309,7 @@ const Referee: FC = () => {
         }, [] as Piece[]);
         if(p){
             console.log(p,pieceType);
-            let url = `https://chess-40-backend.onrender.com/upgradePawn?type=${p["team"]+"_"+pieceType}&ix=${p["position"]["x"]}&iy=${p["position"]["y"]}`;
+            let url = `https://chess-40-backend-1mup.onrender.com/upgradePawn?type=${p["team"]+"_"+pieceType}&ix=${p["position"]["x"]}&iy=${p["position"]["y"]}`;
             const response = await axios.get<{ output: string, error: string }>(url);
         }
         setBoard(() => {
